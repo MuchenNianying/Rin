@@ -21,7 +21,7 @@ export function SitemapService() {
                 set.status = 500;
                 return 'S3_ACCESS_HOST is not defined'
             }
-            const key = path.join(folder, 'sitemap.xml');
+            const key = `${folder}sitemap.xml`;
             try {
                 const url = `${host}/${key}`;
                 console.log(`Fetching ${url}`);
@@ -102,7 +102,7 @@ export async function sitemapCrontab(env: Env) {
     const bucket = env.S3_BUCKET;
     const folder = env.S3_CACHE_FOLDER || "cache/";
     const s3 = createS3Client();
-    const hashkey = path.join(folder, "sitemap.xml");
+    const hashkey = `${folder}sitemap.xml`;
     try {
         await s3.send(
             new PutObjectCommand({
