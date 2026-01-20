@@ -7,6 +7,7 @@ import * as schema from './db/schema';
 import { app } from "./server";
 import { friendCrontab } from "./services/friends";
 import { rssCrontab } from "./services/rss";
+import { sitemapCrontab } from "./services/sitemap";
 import { CacheImpl } from "./utils/cache";
 import { dbToken, envToken } from "./utils/di";
 export type DB = DrizzleD1Database<typeof import("./db/schema")>
@@ -49,5 +50,6 @@ export default {
 
         await friendCrontab(env, ctx)
         await rssCrontab(env)
+        await sitemapCrontab(env)
     },
 }
