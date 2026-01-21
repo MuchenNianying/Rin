@@ -15,7 +15,7 @@ export function SitemapService() {
     const accessHost = env.S3_ACCESS_HOST || endpoint;
     const folder = env.S3_CACHE_FOLDER || 'cache/';
     return new Elysia({ aot: false })
-        .get('/seo/sitemap.xml', async ({ set }) => {
+        .get('/sitemap.xml', async ({ set }) => {
             const frontendUrl = `${env.FRONTEND_URL.startsWith("http://") || env.FRONTEND_URL.startsWith("https://") ? "" : "https://"}${env.FRONTEND_URL}`;
             const host = `${(accessHost.startsWith("http://") || accessHost.startsWith("https://") ? '' :'https://')}${accessHost}`;
             const key = `${folder}sitemap.xml`;

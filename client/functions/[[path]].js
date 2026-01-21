@@ -5,7 +5,7 @@ export async function onRequest(context) {
     // Dynamically construct server domain from client domain
     const clientDomain = url.hostname;
     const serverDomain = clientDomain.replace(/^/, 'server.');
-    const sitemapUrl = `https://${serverDomain}/seo/sitemap.xml`;
+    const sitemapUrl = `https://${serverDomain}/sitemap.xml`;
     return Response.redirect(sitemapUrl, 301);
   }
   
