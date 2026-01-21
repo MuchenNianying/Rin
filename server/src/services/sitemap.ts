@@ -56,7 +56,6 @@ export function SitemapService() {
                 }
                 
                 addUrl(frontendUrl, now, 'daily', 1.0);
-                addUrl(`${frontendUrl}/feeds`, now, 'daily', 0.9);
                 addUrl(`${frontendUrl}/timeline`, now, 'daily', 0.8);
                 addUrl(`${frontendUrl}/moments`, now, 'daily', 0.7);
                 addUrl(`${frontendUrl}/hashtags`, now, 'weekly', 0.6);
@@ -74,19 +73,6 @@ export function SitemapService() {
                 for (const feed of feed_list) {
                     const url = feed.alias ? `${frontendUrl}/feed/${feed.alias}` : `${frontendUrl}/feed/${feed.id}`;
                     addUrl(url, feed.updatedAt, 'weekly', 0.8);
-                }
-                
-                const hashtag_list = await db.query.hashtags.findMany({
-                    columns: {
-                        id: true,
-                        name: true,
-                        updatedAt: true,
-                    },
-                    orderBy: [desc(hashtags.updatedAt)],
-                });
-                
-                for (const tag of hashtag_list) {
-                    addUrl(`${frontendUrl}/hashtag/${tag.id}`, tag.updatedAt, 'weekly', 0.5);
                 }
                 
                 xml += '</urlset>';
@@ -135,10 +121,8 @@ export async function sitemapCrontab(env: Env) {
     }
 
     addUrl(frontendUrl, now, 'daily', 1.0);
-    addUrl(`${frontendUrl}/feeds`, now, 'daily', 0.9);
     addUrl(`${frontendUrl}/timeline`, now, 'daily', 0.8);
     addUrl(`${frontendUrl}/moments`, now, 'daily', 0.7);
-    addUrl(`${frontendUrl}/hashtags`, now, 'weekly', 0.6);
 
     const feed_list = await db.query.feeds.findMany({
         where: and(eq(feeds.draft, 0), eq(feeds.listed, 1)),
@@ -153,19 +137,6 @@ export async function sitemapCrontab(env: Env) {
     for (const feed of feed_list) {
         const url = feed.alias ? `${frontendUrl}/feed/${feed.alias}` : `${frontendUrl}/feed/${feed.id}`;
         addUrl(url, feed.updatedAt, 'weekly', 0.8);
-    }
-
-    const hashtag_list = await db.query.hashtags.findMany({
-        columns: {
-            id: true,
-            name: true,
-            updatedAt: true,
-        },
-        orderBy: [desc(hashtags.updatedAt)],
-    });
-
-    for (const tag of hashtag_list) {
-        addUrl(`${frontendUrl}/hashtag/${tag.id}`, tag.updatedAt, 'weekly', 0.5);
     }
 
     xml += '</urlset>';
