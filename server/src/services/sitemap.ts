@@ -59,6 +59,7 @@ export function SitemapService() {
                 addUrl(`${frontendUrl}/timeline`, now, 'daily', 0.8);
                 addUrl(`${frontendUrl}/moments`, now, 'daily', 0.7);
                 addUrl(`${frontendUrl}/hashtags`, now, 'weekly', 0.6);
+                addUrl(`${frontendUrl}/about`, now, 'monthly', 0.6);
                 
                 const feed_list = await db.query.feeds.findMany({
                     where: and(eq(feeds.draft, 0), eq(feeds.listed, 1)),
@@ -123,6 +124,8 @@ export async function sitemapCrontab(env: Env) {
     addUrl(frontendUrl, now, 'daily', 1.0);
     addUrl(`${frontendUrl}/timeline`, now, 'daily', 0.8);
     addUrl(`${frontendUrl}/moments`, now, 'daily', 0.7);
+    addUrl(`${frontendUrl}/hashtags`, now, 'weekly', 0.6);
+    addUrl(`${frontendUrl}/about`, now, 'monthly', 0.6);
 
     const feed_list = await db.query.feeds.findMany({
         where: and(eq(feeds.draft, 0), eq(feeds.listed, 1)),
