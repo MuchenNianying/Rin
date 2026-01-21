@@ -1,4 +1,4 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import path from "path";
 import Container, { Service } from "typedi";
 import type { DB } from "../_worker";
@@ -14,32 +14,54 @@ export class CacheImpl {
     cache: Map<string, any> = new Map<string, any>();
     db: DB;
     env: Env;
-    cacheUrl: string;
+    cacheUrl: string | null;
     type: string;
     loaded: boolean = false;
-    s3 = createS3Client();
+    s3: S3Client | null;
 
     constructor(type: string = "cache") {
         this.type = type;
         this.db = getDB();
         this.env = getEnv();
         this.cache = new Map<string, any>();
-        const slash = this.env.S3_ACCESS_HOST.endsWith('/') ? '' : '/';
-        this.cacheUrl = this.env.S3_ACCESS_HOST + slash + path.join(this.env.S3_CACHE_FOLDER || 'cache', `${type}.json`);
+        this.s3 = null;
+        this.cacheUrl = null;
+        
+        try {
+            if (this.env.S3_ACCESS_HOST) {
+                const slash = this.env.S3_ACCESS_HOST.endsWith('/') ? '' : '/';
+                this.cacheUrl = this.env.S3_ACCESS_HOST + slash + path.join(this.env.S3_CACHE_FOLDER || 'cache', `${type}.json`);
+            }
+            
+            if (this.env.S3_ACCESS_KEY_ID && this.env.S3_SECRET_ACCESS_KEY) {
+                this.s3 = createS3Client();
+            }
+        } catch (e) {
+            console.error('Cache initialization error:', e.message);
+        }
     }
 
     async load() {
         console.log('Cache load', this.cacheUrl);
         try {
+            if (!this.cacheUrl) {
+                console.log('Cache URL not configured, skipping load');
+                this.loaded = true;
+                return;
+            }
+            
             const response = await fetch(new Request(this.cacheUrl))
-            const data = await response.json<any>()
-            for (let key in data) {
-                this.cache.set(key, data[key]);
+            if (response.ok) {
+                const data = await response.json<any>()
+                for (let key in data) {
+                    this.cache.set(key, data[key]);
+                }
             }
             this.loaded = true;
         } catch (e: any) {
             console.error('Cache load failed');
             console.error(e.message);
+            this.loaded = true;
         }
     }
     async all() {
@@ -139,17 +161,26 @@ export class CacheImpl {
     }
 
     async save() {
-        const cacheKey = path.join(this.env.S3_CACHE_FOLDER, `${this.type}.json`);
-        await this.s3.send(new PutObjectCommand({
-            Bucket: this.env.S3_BUCKET,
-            Key: cacheKey,
-            Body: JSON.stringify(Object.fromEntries(this.cache))
-        })).then(() => {
-            console.log('Cache saved');
-        }).catch((e: any) => {
-            console.error('Cache save failed')
-            console.error(e.message);
-        });
+        try {
+            if (!this.s3 || !this.env.S3_BUCKET) {
+                console.log('S3 not configured, skipping cache save');
+                return;
+            }
+            
+            const cacheKey = path.join(this.env.S3_CACHE_FOLDER || 'cache', `${this.type}.json`);
+            await this.s3.send(new PutObjectCommand({
+                Bucket: this.env.S3_BUCKET,
+                Key: cacheKey,
+                Body: JSON.stringify(Object.fromEntries(this.cache))
+            })).then(() => {
+                console.log('Cache saved');
+            }).catch((e: any) => {
+                console.error('Cache save failed')
+                console.error(e.message);
+            });
+        } catch (e: any) {
+            console.error('Cache save error:', e.message);
+        }
     }
 }
 
