@@ -1,7 +1,7 @@
 export async function onRequest(context) {
   const url = new URL(context.request.url);
   
-  if (url.pathname === '/sitemap.xml') {
+  if (url.pathname === '/sitemap.xml' || url.pathname === '/seo/sitemap.xml') {
     // Dynamically construct server domain from client domain
     const clientDomain = url.hostname;
     const serverDomain = clientDomain.replace(/^/, 'server.');
