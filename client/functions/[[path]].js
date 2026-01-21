@@ -2,8 +2,10 @@ export async function onRequest(context) {
   const url = new URL(context.request.url);
   
   if (url.pathname === '/sitemap.xml') {
-    // Redirect to server's sitemap endpoint
-    const sitemapUrl = `https://server.mcny.dpdns.org/seo/sitemap.xml`;
+    // Dynamically construct server domain from client domain
+    const clientDomain = url.hostname;
+    const serverDomain = clientDomain.replace(/^/, 'server.');
+    const sitemapUrl = `https://${serverDomain}/seo/sitemap.xml`;
     return Response.redirect(sitemapUrl, 301);
   }
   
