@@ -24,18 +24,6 @@ jobs:
       - name: Set up Bun
         uses: oven-sh/setup-bun@v1
 
-      - name: Set up Puppeteer
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google.list
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable libgbm-dev
-          export CHROME_PATH=$(which google-chrome)
-          echo "CHROME_PATH=$CHROME_PATH" >> $GITHUB_ENV
-          npx puppeteer browsers list
-
       - name: Run script
         env: # Or as an environment variable
           S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
