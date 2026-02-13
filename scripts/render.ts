@@ -69,6 +69,9 @@ try {
     const chromePath = process.env.CHROME_PATH || process.env.PUPPETEER_EXECUTABLE_PATH;
     if (chromePath) {
         puppeteerOptions.executablePath = chromePath;
+        console.log(`Using Chrome at: ${chromePath}`);
+    } else {
+        console.log('Using default Puppeteer configuration');
     }
 } catch (e) {
     console.log('Using default Puppeteer configuration');
