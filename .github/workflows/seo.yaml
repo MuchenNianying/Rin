@@ -28,8 +28,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgbm-dev libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2
-          npx puppeteer browsers install chrome@stable
-          npx puppeteer browsers list
+          PUPPETEER_CACHE_DIR=/home/runner/.cache/puppeteer npx puppeteer browsers install chrome@stable
+          PUPPETEER_CACHE_DIR=/home/runner/.cache/puppeteer npx puppeteer browsers list
+          echo "Puppeteer setup completed"
 
       - name: Run script
         env: # Or as an environment variable
