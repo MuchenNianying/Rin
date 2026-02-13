@@ -60,9 +60,21 @@ async function saveFile(filename: string, data: string) {
 // Fetch All Links
 const fetchedLinks = new Set<string>();
 const ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36';
-const browser = await puppeteer.launch({
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-});
+
+const puppeteerOptions: any = {
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-accelerated-2d-canvas', '--no-first-run', '--no-zygote', '--single-process', '--disable-gpu']
+};
+
+try {
+    const chromePath = process.env.CHROME_PATH || process.env.PUPPETEER_EXECUTABLE_PATH;
+    if (chromePath) {
+        puppeteerOptions.executablePath = chromePath;
+    }
+} catch (e) {
+    console.log('Using default Puppeteer configuration');
+}
+
+const browser = await puppeteer.launch(puppeteerOptions);
 
 async function fetchPage(url: string) {
     // Fetch page content
